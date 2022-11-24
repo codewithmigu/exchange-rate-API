@@ -14,7 +14,7 @@ public abstract class BaseControllerTest {
     @Autowired
     private WebTestClient webTestClient;
 
-    protected WebTestClient.ResponseSpec doPost(String uri, Object requestBody) {
+    protected WebTestClient.ResponseSpec doPost(final String uri, final Object requestBody) {
         return webTestClient.post()
                 .uri(uri)
                 .body(BodyInserters.fromValue(requestBody))
@@ -22,7 +22,7 @@ public abstract class BaseControllerTest {
                 .exchange();
     }
 
-    protected WebTestClient.ResponseSpec doGet(String uri, MultiValueMap<String, String> queryParams) {
+    protected WebTestClient.ResponseSpec doGet(final String uri, final MultiValueMap<String, String> queryParams) {
         return webTestClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path(uri)

@@ -8,9 +8,9 @@ info:
 servers:
   - url: 'http://localhost:8080/api/exchange'
 paths:
-  /rate:
+  /rate/currency:
     get:
-      operationId: "GetRate"
+      operationId: "GetCurrencyRate"
       summary: |
         Retrieves the exchange rate from supplied currency to another.
       parameters:
@@ -36,9 +36,9 @@ paths:
         '503':
           description: |
             Failed to retrieve data because server couldn't fulfill because requested resource because of a problem of its data sources.
-  /rates:
+  /rate/currencies:
     get:
-      operationId: "GetRates"
+      operationId: "GetMultipleCurrenciesRate"
       summary: |
         Retrieves the exchange rates of given target currencies from given currency. 
         If target currencies is not set, it will return the exchange rates of all supported currencies from the given one.
@@ -62,7 +62,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ExchangeRatesResponse'
+                $ref: '#/components/schemas/CurrenciesRateResponse'
         '400':
           description: |
             Failed to retrieve data because missing or empty value of mandatory request params or their format is invalid.
@@ -75,9 +75,9 @@ paths:
         '503':
           description: |
             Failed to retrieve data because server couldn't fulfill because requested resource because of a problem of its data sources.
-  /conversion-value:
+  /conversion-value/currency:
     post:
-      operationId: "GetConversionValue"
+      operationId: "GetCurrencyConversionValue"
       summary: |
         Retrieves the conversion value of given value and its currency into the target currency.
       requestBody:
@@ -102,16 +102,16 @@ paths:
             Failed to retrieve data because missing or empty value of mandatory request params or their format is invalid.
         '422':
           description: |
-            Failed to retrieve data because request params contains at least one not supported currency.
+            Failed to retrieve data because request body params contains at least one not supported currency or value is not greater or equal to 0.
         '500':
           description: |
             Failed to retrieve data because server couldn't fulfill the requested resource because of an internal problem.
         '503':
           description: |
             Failed to retrieve data because server couldn't fulfill because requested resource because of a problem of its data sources.
-  /conversion-values:
+  /conversion-value/currencies:
     post:
-      operationId: "GetConversionValues"
+      operationId: "GetMultipleCurrenciesConversionValue"
       summary: |
         Retrieves the conversion values of given value and its currency into the target currencies.
       requestBody:
@@ -121,7 +121,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ConversionValuesRequest'
+              $ref: '#/components/schemas/CurrenciesConversionValueRequest'
       responses:
         '200':
           description: |
@@ -129,13 +129,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ConversionValuesResponse'
+                $ref: '#/components/schemas/CurrenciesConversionValueResponse'
         '400':
           description: |
             Failed to retrieve data because missing or empty value of mandatory request params or their format is invalid.
         '422':
           description: |
-            Failed to retrieve data because request params contains at least one not supported currency.
+            Failed to retrieve data because request body params contains at least one not supported currency or value is not greater or equal to 0.
         '500':
           description: |
             Failed to retrieve data because server couldn't fulfill the requested resource because of an internal problem.
@@ -175,7 +175,7 @@ components:
       required:
         - exchangeRate
 
-    ExchangeRatesResponse:
+    CurrenciesRateResponse:
       properties:
         exchangeRates:
           type: array
@@ -221,7 +221,7 @@ components:
       required:
         - value
 
-    ConversionValuesRequest:
+    CurrenciesConversionValueRequest:
       properties:
         value:
           type: number
@@ -239,9 +239,9 @@ components:
         - currency
         - target
 
-    ConversionValuesResponse:
+    CurrenciesConversionValueResponse:
       properties:
-        conversionValues:
+        currenciesConversionValue:
           type: array
           items:
             $ref: "#/components/schemas/ConversionValueResponse"

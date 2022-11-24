@@ -1,8 +1,8 @@
 package com.exchange.api;
 
+import com.exchange.generated.model.CurrenciesRateResponse;
+import com.exchange.generated.model.CurrenciesRateResponseExchangeRatesInner;
 import com.exchange.generated.model.ExchangeRateResponse;
-import com.exchange.generated.model.ExchangeRatesResponse;
-import com.exchange.generated.model.ExchangeRatesResponseExchangeRatesInner;
 import io.vavr.Tuple2;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -27,31 +27,32 @@ import static com.exchange.utils.Utils.*;
 class ExchangeRateControllerTest extends BaseControllerTest {
     // TODO: Add white box testing: add more granular validation after adopting wiremock or other strategy of mocking response from downstream APIs
 
-    private static final String GET_RATE_PATH_URI = "/rate";
-    private static final String GET_RATES_PATH_URI = "/rates";
+    private static final String GET_RATE_PATH_URI = "/rate/currency";
+    private static final String GET_MULTIPLE_RATES_PATH_URI = "/rate/currencies";
 
     @Test
-    @DisplayName("Get rate endpoint 200 scenario")
-    void testGetRate200Scenario() {
+    @DisplayName("Exchange rate retrieval endpoint 200 scenario")
+    void testExchangeRateRetrieval200Scenario() {
         // given
         final var currencyQueryParam = new Tuple2<>(CURRENCY_QUERY_PARAM_NAME, EUR_CURRENCY);
         final var targetQueryParam = new Tuple2<>(TARGET_QUERY_PARAM_NAME, GBP_CURRENCY);
 
         // when
-        final var rateResponse = super.doGet(GET_RATE_PATH_URI, buildQueryParams(currencyQueryParam, targetQueryParam))
+        final var response = super.doGet(GET_RATE_PATH_URI, buildQueryParams(currencyQueryParam, targetQueryParam))
                 .expectStatus().isOk()
                 .returnResult(ExchangeRateResponse.class)
                 .getResponseBody()
                 .blockFirst();
 
         // then
-        Assertions.assertThat(rateResponse).isNotNull();
+        Assertions.assertThat(response).isNotNull();
+        Assertions.assertThat(response.getExchangeRate()).isNotNull();
     }
 
     @ParameterizedTest
-    @MethodSource("provideParamsForGetRates200Scenario")
-    @DisplayName("Get rates endpoint 200 scenario")
-    void testGetRates200Scenario(@AggregateWith(VarargsAggregator.class) Tuple2<String, String>... queryParams) {
+    @MethodSource("provideParamsForMultipleExchangeRatesRetrieval200Scenario")
+    @DisplayName("Multiple exchange rates retrieval  endpoint 200 scenario")
+    void testMultipleExchangeRatesRetrieval200Scenario(@AggregateWith(VarargsAggregator.class) final Tuple2<String, String>... queryParams) {
         // given
         final var expectedCurrencies = Arrays.stream(queryParams)
                 .filter(Objects::nonNull)
@@ -60,58 +61,58 @@ class ExchangeRateControllerTest extends BaseControllerTest {
                 .collect(Collectors.toUnmodifiableSet());
 
         // when
-        final var ratesResponse = super.doGet(GET_RATES_PATH_URI, buildQueryParams(queryParams))
+        final var response = super.doGet(GET_MULTIPLE_RATES_PATH_URI, buildQueryParams(queryParams))
                 .expectStatus().isOk()
-                .returnResult(ExchangeRatesResponse.class)
+                .returnResult(CurrenciesRateResponse.class)
                 .getResponseBody()
                 .blockFirst();
 
         // then
-        Assertions.assertThat(ratesResponse).isNotNull();
-        Assertions.assertThat(ratesResponse.getExchangeRates()).isNotNull();
+        Assertions.assertThat(response).isNotNull();
+        Assertions.assertThat(response.getExchangeRates()).isNotNull();
 
-        final var actualCurrencies = ratesResponse.getExchangeRates()
-                .stream()
-                .map(ExchangeRatesResponseExchangeRatesInner::getCurrency)
-                .collect(Collectors.toUnmodifiableSet());
+        final var actualCurrencies = getCurrencies(response.getExchangeRates(),
+                CurrenciesRateResponseExchangeRatesInner::getCurrency);
 
         Assertions.assertThat(actualCurrencies).isEqualTo(expectedCurrencies);
     }
 
     @ParameterizedTest
-    @MethodSource("provideParamsForGetRate4xxScenario")
-    @DisplayName("Get rate endpoint 4xx error scenario")
-    void testGetRate4xxResponse(final Tuple2<String, String> currencyQueryParam, final Tuple2<String, String> targetQueryParam, int expectedStatusCode) {
+    @MethodSource("provideParamsForExchangeRateRetrieval4xxScenario")
+    @DisplayName("Exchange rate retrieval endpoint 4xx error scenario")
+    void testExchangeRateRetrieval4xxResponse(final Tuple2<String, String> currencyQueryParam,
+                                              final Tuple2<String, String> targetQueryParam, final int expectedStatusCode) {
         super.doGet(GET_RATE_PATH_URI, buildQueryParams(currencyQueryParam, targetQueryParam))
                 .expectStatus()
                 .isEqualTo(expectedStatusCode);
     }
 
     @ParameterizedTest
-    @MethodSource("provideParamsForGetRates4xxScenario")
-    @DisplayName("Get rates endpoint 4xx error scenario")
-    void testGetRate4xxResponse(int expectedStatusCode, @AggregateWith(VarargsAggregator.class) Tuple2<String, String>... queryParams) {
-        super.doGet(GET_RATES_PATH_URI, buildQueryParams(queryParams))
+    @MethodSource("provideParamsForMultipleExchangeRatesRetrieval4xxScenario")
+    @DisplayName("Multiple exchange rates retrieval  endpoint 4xx error scenario")
+    void testExchangeRateRetrieval4xxResponse(final int expectedStatusCode,
+                                              @AggregateWith(VarargsAggregator.class) final Tuple2<String, String>... queryParams) {
+        super.doGet(GET_MULTIPLE_RATES_PATH_URI, buildQueryParams(queryParams))
                 .expectStatus()
                 .isEqualTo(expectedStatusCode);
     }
 
     @SafeVarargs
-    private MultiValueMap<String, String> buildQueryParams(Tuple2<String, String>... queryParamNameAndValue) {
+    private MultiValueMap<String, String> buildQueryParams(final Tuple2<String, String>... queryParamNameAndValue) {
         return Arrays.stream(queryParamNameAndValue)
                 .filter(Objects::nonNull)
                 .collect(LinkedMultiValueMap::new, (map, e) -> map.add(e._1(), e._2()), (MultiValueMapAdapter::addAll));
     }
 
-    private static Stream<Arguments> provideParamsForGetRates4xxScenario() {
+    private static Stream<Arguments> provideParamsForMultipleExchangeRatesRetrieval4xxScenario() {
         return Stream.of(
                 Arguments.of(
                         400
                 ),
                 Arguments.of(
                         400,
-                        new Tuple2<>(CURRENCY_QUERY_PARAM_NAME, EMPTY)
-                        ),
+                        new Tuple2<>(CURRENCY_QUERY_PARAM_NAME, EMPTY_STRING)
+                ),
                 Arguments.of(
                         400,
                         new Tuple2<>(CURRENCY_QUERY_PARAM_NAME, null)
@@ -126,7 +127,7 @@ class ExchangeRateControllerTest extends BaseControllerTest {
                 ),
                 Arguments.of(
                         400,
-                        new Tuple2<>(CURRENCY_QUERY_PARAM_NAME, EMPTY),
+                        new Tuple2<>(CURRENCY_QUERY_PARAM_NAME, EMPTY_STRING),
                         new Tuple2<>(TARGET_QUERY_PARAM_NAME, EUR_CURRENCY)
                 ),
                 Arguments.of(
@@ -157,7 +158,7 @@ class ExchangeRateControllerTest extends BaseControllerTest {
         );
     }
 
-    private static Stream<Arguments> provideParamsForGetRates200Scenario() {
+    private static Stream<Arguments> provideParamsForMultipleExchangeRatesRetrieval200Scenario() {
         return Stream.of(
                 Arguments.of(
                         new Tuple2<>(CURRENCY_QUERY_PARAM_NAME, EUR_CURRENCY)
@@ -174,7 +175,7 @@ class ExchangeRateControllerTest extends BaseControllerTest {
         );
     }
 
-    private static Stream<Arguments> provideParamsForGetRate4xxScenario() {
+    private static Stream<Arguments> provideParamsForExchangeRateRetrieval4xxScenario() {
         return Stream.of(
 //                400 error when at least one mandatory query param is missing or empty, or they don't contain only letters
                 Arguments.of(
@@ -182,7 +183,7 @@ class ExchangeRateControllerTest extends BaseControllerTest {
                         new Tuple2<>(TARGET_QUERY_PARAM_NAME, GBP_CURRENCY),
                         400),
                 Arguments.of(
-                        new Tuple2<>(CURRENCY_QUERY_PARAM_NAME, EMPTY),
+                        new Tuple2<>(CURRENCY_QUERY_PARAM_NAME, EMPTY_STRING),
                         new Tuple2<>(TARGET_QUERY_PARAM_NAME, GBP_CURRENCY),
                         400),
                 Arguments.of(
@@ -195,7 +196,7 @@ class ExchangeRateControllerTest extends BaseControllerTest {
                         400),
                 Arguments.of(
                         new Tuple2<>(CURRENCY_QUERY_PARAM_NAME, GBP_CURRENCY),
-                        new Tuple2<>(TARGET_QUERY_PARAM_NAME, EMPTY),
+                        new Tuple2<>(TARGET_QUERY_PARAM_NAME, EMPTY_STRING),
                         400),
                 Arguments.of(
                         new Tuple2<>(CURRENCY_QUERY_PARAM_NAME, GBP_CURRENCY),
@@ -204,16 +205,16 @@ class ExchangeRateControllerTest extends BaseControllerTest {
                 Arguments.of(
                         new Tuple2<>(CURRENCY_QUERY_PARAM_NAME, null),
                         new Tuple2<>(TARGET_QUERY_PARAM_NAME
-                                , EMPTY),
+                                , EMPTY_STRING),
                         400),
                 Arguments.of(
-                        new Tuple2<>(CURRENCY_QUERY_PARAM_NAME, EMPTY),
+                        new Tuple2<>(CURRENCY_QUERY_PARAM_NAME, EMPTY_STRING),
                         new Tuple2<>(TARGET_QUERY_PARAM_NAME, null),
                         400),
                 Arguments.of(
-                        new Tuple2<>(CURRENCY_QUERY_PARAM_NAME, EMPTY),
+                        new Tuple2<>(CURRENCY_QUERY_PARAM_NAME, EMPTY_STRING),
                         new Tuple2<>(TARGET_QUERY_PARAM_NAME
-                                , EMPTY),
+                                , EMPTY_STRING),
                         400),
                 Arguments.of(
                         new Tuple2<>(CURRENCY_QUERY_PARAM_NAME, null),
