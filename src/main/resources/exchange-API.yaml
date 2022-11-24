@@ -26,7 +26,7 @@ paths:
                 $ref: '#/components/schemas/ExchangeRateResponse'
         '400':
           description: |
-            Failed to retrieve data because missing mandatory request params or their format is invalid.
+            Failed to retrieve data because missing or empty value of mandatory request params or their format is invalid.
         '422':
           description: |
             Failed to retrieve data because request params contains at least one not supported currency.
@@ -65,7 +65,7 @@ paths:
                 $ref: '#/components/schemas/ExchangeRatesResponse'
         '400':
           description: |
-            Failed to retrieve data because missing mandatory request params or their format is invalid.
+            Failed to retrieve data because missing or empty value of mandatory request params or their format is invalid.
         '422':
           description: |
             Failed to retrieve data because request params contains at least one not supported currency.
@@ -99,7 +99,7 @@ paths:
                 $ref: '#/components/schemas/ConversionValueResponse'
         '400':
           description: |
-            Failed to retrieve data because missing mandatory request params or their format is invalid.
+            Failed to retrieve data because missing or empty value of mandatory request params or their format is invalid.
         '422':
           description: |
             Failed to retrieve data because request params contains at least one not supported currency.
@@ -132,7 +132,7 @@ paths:
                 $ref: '#/components/schemas/ConversionValuesResponse'
         '400':
           description: |
-            Failed to retrieve data because missing mandatory request params or their format is invalid.
+            Failed to retrieve data because missing or empty value of mandatory request params or their format is invalid.
         '422':
           description: |
             Failed to retrieve data because request params contains at least one not supported currency.
