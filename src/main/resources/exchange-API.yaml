@@ -8,6 +8,23 @@ info:
 servers:
   - url: 'http://localhost:8080/api/exchange'
 paths:
+  /available-currencies:
+    get:
+      operationId: "GetAvailableCurrencies"
+      summary: |
+        Retrieves the available currencies of the API which later can be used by the user
+      responses:
+        '200':
+          description: |
+            Successfully retrieved the available currencies
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AvailableCurrenciesResponse'
+        '500':
+          description: |
+            Failed to retrieve data because server occurred an internal problem.
+            
   /rate/currency:
     get:
       operationId: "GetCurrencyRate"
@@ -32,10 +49,10 @@ paths:
             Failed to retrieve data because request params contains at least one not supported currency.
         '500':
           description: |
-            Failed to retrieve data because server couldn't fulfill the requested resource because of an internal problem.
+            Failed to retrieve data because server occurred an internal problem.
         '503':
           description: |
-            Failed to retrieve data because server couldn't fulfill because requested resource because of a problem of its data sources.
+            Failed to retrieve data because because of a problem of its data sources.
   /rate/currencies:
     get:
       operationId: "GetMultipleCurrenciesRate"
@@ -71,10 +88,10 @@ paths:
             Failed to retrieve data because request params contains at least one not supported currency.
         '500':
           description: |
-            Failed to retrieve data because server couldn't fulfill the requested resource because of an internal problem.
+            Failed to retrieve data because server occurred an internal problem.
         '503':
           description: |
-            Failed to retrieve data because server couldn't fulfill because requested resource because of a problem of its data sources.
+            Failed to retrieve data because because of a problem of its data sources.
   /conversion-value/currency:
     post:
       operationId: "GetCurrencyConversionValue"
@@ -105,10 +122,10 @@ paths:
             Failed to retrieve data because request body params contains at least one not supported currency or value is not greater or equal to 0.
         '500':
           description: |
-            Failed to retrieve data because server couldn't fulfill the requested resource because of an internal problem.
+            Failed to retrieve data because server occurred an internal problem.
         '503':
           description: |
-            Failed to retrieve data because server couldn't fulfill because requested resource because of a problem of its data sources.
+            Failed to retrieve data because because of a problem of its data sources.
   /conversion-value/currencies:
     post:
       operationId: "GetMultipleCurrenciesConversionValue"
@@ -138,10 +155,10 @@ paths:
             Failed to retrieve data because request body params contains at least one not supported currency or value is not greater or equal to 0.
         '500':
           description: |
-            Failed to retrieve data because server couldn't fulfill the requested resource because of an internal problem.
+            Failed to retrieve data because server occurred an internal problem.
         '503':
           description: |
-            Failed to retrieve data because server couldn't fulfill because requested resource because of a problem of its data sources.
+            Failed to retrieve data because because of a problem of its data sources.
 
 components:
   parameters:
@@ -247,3 +264,13 @@ components:
             $ref: "#/components/schemas/ConversionValueResponse"
       required:
         - conversionValues
+
+    AvailableCurrenciesResponse:
+      properties:
+        currencies:
+          type: array
+          items:
+            type: string
+          example: ["USD", "EUR", "GBP"]
+      required: 
+        - currencies
