@@ -1,0 +1,259 @@
+openapi: 3.0.3
+info:
+  title: Exchange Rate API Swagger Doc
+  description: |
+    Exchange Rate API fetches exchange rates from external APIs and offers various currency 
+    based operations via its exposed API.
+  version: 1.0.0
+servers:
+  - url: 'http://localhost:8080/api/exchange'
+paths:
+  /rate:
+    get:
+      operationId: "GetRate"
+      summary: |
+        Retrieves the exchange rate from supplied currency to another.
+      parameters:
+        - $ref: '#/components/parameters/currencyParam'
+        - $ref: '#/components/parameters/targetCurrencyParam'
+      responses:
+        '200':
+          description: |
+            Successfully retrieved the exchange rate of given target currency from the given one.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExchangeRateResponse'
+        '400':
+          description: |
+            Failed to retrieve data because missing mandatory request params or their format is invalid.
+        '422':
+          description: |
+            Failed to retrieve data because request params contains at least one not supported currency.
+        '500':
+          description: |
+            Failed to retrieve data because server couldn't fulfill the requested resource because of an internal problem.
+        '503':
+          description: |
+            Failed to retrieve data because server couldn't fulfill because requested resource because of a problem of its data sources.
+  /rates:
+    get:
+      operationId: "GetRates"
+      summary: |
+        Retrieves the exchange rates of given target currencies from given currency. 
+        If target currencies is not set, it will return the exchange rates of all supported currencies from the given one.
+      parameters:
+        - $ref: '#/components/parameters/currencyParam'
+        - in: query
+          name: target[]
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+          example: ["USD", "GBP"]
+          description: |
+            Target currencies on which the exchange rate conversion of given currency is applied
+
+      responses:
+        '200':
+          description: |
+            Successfully retrieved the exchange rates of all supported currencies from the given currency.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExchangeRatesResponse'
+        '400':
+          description: |
+            Failed to retrieve data because missing mandatory request params or their format is invalid.
+        '422':
+          description: |
+            Failed to retrieve data because request params contains at least one not supported currency.
+        '500':
+          description: |
+            Failed to retrieve data because server couldn't fulfill the requested resource because of an internal problem.
+        '503':
+          description: |
+            Failed to retrieve data because server couldn't fulfill because requested resource because of a problem of its data sources.
+  /conversion-value:
+    post:
+      operationId: "GetConversionValue"
+      summary: |
+        Retrieves the conversion value of given value and its currency into the target currency.
+      requestBody:
+        description: |
+          Contains the value with its currency, alongside the target currency.
+        required:
+          true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConversionValueRequest'
+      responses:
+        '200':
+          description: |
+            Successfully retrieved the the conversion value of given target currency from the given value and its currency.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversionValueResponse'
+        '400':
+          description: |
+            Failed to retrieve data because missing mandatory request params or their format is invalid.
+        '422':
+          description: |
+            Failed to retrieve data because request params contains at least one not supported currency.
+        '500':
+          description: |
+            Failed to retrieve data because server couldn't fulfill the requested resource because of an internal problem.
+        '503':
+          description: |
+            Failed to retrieve data because server couldn't fulfill because requested resource because of a problem of its data sources.
+  /conversion-values:
+    post:
+      operationId: "GetConversionValues"
+      summary: |
+        Retrieves the conversion values of given value and its currency into the target currencies.
+      requestBody:
+        description: |
+          Contains the value with its currency, alongside a list of target currencies.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConversionValuesRequest'
+      responses:
+        '200':
+          description: |
+            Successfully retrieved the the conversion values of given target currencies from the given value and its currency.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversionValuesResponse'
+        '400':
+          description: |
+            Failed to retrieve data because missing mandatory request params or their format is invalid.
+        '422':
+          description: |
+            Failed to retrieve data because request params contains at least one not supported currency.
+        '500':
+          description: |
+            Failed to retrieve data because server couldn't fulfill the requested resource because of an internal problem.
+        '503':
+          description: |
+            Failed to retrieve data because server couldn't fulfill because requested resource because of a problem of its data sources.
+
+components:
+  parameters:
+    currencyParam:
+      in: query
+      name: currency
+      required: true
+      schema:
+        type: string
+      description: |
+        The base currency on which the requested operation is applied.
+      example: "EUR"
+
+    targetCurrencyParam:
+      in: query
+      name: target
+      required: true
+      schema:
+        type: string
+      description: |
+        The target currency on which the requested operation is applied.
+      example: "USD"
+
+  schemas:
+    ExchangeRateResponse:
+      type: object
+      properties:
+        exchangeRate:
+          type: number
+          example: 42.666
+      required:
+        - exchangeRate
+
+    ExchangeRatesResponse:
+      properties:
+        exchangeRates:
+          type: array
+          items:
+            type: object
+            properties:
+              currency:
+                type: string
+                example: "EUR"
+              rate:
+                type: number
+                example: 42.666
+            required:
+              - currency
+              - rate
+      required:
+        - exchangeRates
+
+    ConversionValueRequest:
+      properties:
+        value:
+          type: number
+          example: 42.666
+        currency:
+          type: string
+          example: "EUR"
+        target:
+          type: string
+          example: "USD"
+      required:
+        - value
+        - currency
+        - target
+
+    ConversionValueResponse:
+      properties:
+        value:
+          type: number
+          example: 42.666
+      required:
+        - value
+
+    ConversionValuesRequest:
+      properties:
+        value:
+          type: number
+          example: 42.666
+        currency:
+          type: string
+          example: "EUR"
+        target:
+          type: array
+          items:
+            type: string
+          example: ["USD", "GBP"]
+      required:
+        - value
+        - currency
+        - target
+
+    ConversionValuesResponse:
+      properties:
+        conversionValues:
+          type: array
+          items:
+            type: object
+            properties:
+              currency:
+                type: string
+              value:
+                type: number
+            required:
+              - currency
+              - number
+          example:
+            - currency: "USD"
+              value: 420.42
+            - currency: "GBP"
+              value: 666.357
+      required:
+        - conversionValues
