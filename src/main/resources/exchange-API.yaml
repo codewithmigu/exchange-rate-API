@@ -51,7 +51,7 @@ paths:
             type: array
             items:
               type: string
-          example: ["USD", "GBP"]
+          example: [ "USD", "GBP" ]
           description: |
             Target currencies on which the exchange rate conversion of given currency is applied
 
@@ -212,6 +212,9 @@ components:
 
     ConversionValueResponse:
       properties:
+        currency:
+          type: string
+          example: "EUR"
         value:
           type: number
           example: 42.666
@@ -230,7 +233,7 @@ components:
           type: array
           items:
             type: string
-          example: ["USD", "GBP"]
+          example: [ "USD", "GBP" ]
       required:
         - value
         - currency
@@ -241,19 +244,6 @@ components:
         conversionValues:
           type: array
           items:
-            type: object
-            properties:
-              currency:
-                type: string
-              value:
-                type: number
-            required:
-              - currency
-              - number
-          example:
-            - currency: "USD"
-              value: 420.42
-            - currency: "GBP"
-              value: 666.357
+            $ref: "#/components/schemas/ConversionValueResponse"
       required:
         - conversionValues

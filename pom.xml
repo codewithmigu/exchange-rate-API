@@ -151,6 +151,8 @@
                                 <reactive>true</reactive>
                                 <useSpringController>true</useSpringController>
                                 <library>spring-boot</library>
+                                <modelPackage>com.exchange.generated.model</modelPackage>
+                                <apiPackage>com.exchange.generated.api</apiPackage>
                             </configOptions>
                         </configuration>
                     </execution>
