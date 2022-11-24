@@ -1,4 +1,4 @@
-package com.exchange.controller;
+package com.exchange.api;
 
 import com.exchange.generated.api.RateApi;
 import com.exchange.generated.api.RatesApi;

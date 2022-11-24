@@ -1,4 +1,4 @@
-package com.exchange.controller;
+package com.exchange.api;
 
 import com.exchange.generated.api.ConversionValueApi;
 import com.exchange.generated.api.ConversionValuesApi;
