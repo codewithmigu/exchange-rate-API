@@ -1,18 +1,15 @@
 package com.exchange.api;
 
+import com.exchange.api.config.TestConfig;
 import com.exchange.generated.model.AvailableCurrenciesResponse;
-import com.exchange.generated.model.ExchangeRateResponse;
-import com.exchange.service.AvailableCurrenciesService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
-import org.springframework.context.annotation.Import;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.springframework.test.context.ContextConfiguration;
 
 @WebFluxTest(AvailableCurrenciesController.class)
-@Import(AvailableCurrenciesService.class)
+@ContextConfiguration(classes = TestConfig.class)
 class AvailableCurrenciesControllerTest extends BaseControllerTest{
 
     private static final String AVAILABLE_CURRENCIES_PATH_URI = "/available-currencies";

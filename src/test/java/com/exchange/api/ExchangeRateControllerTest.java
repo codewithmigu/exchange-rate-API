@@ -1,11 +1,8 @@
 package com.exchange.api;
 
-import com.exchange.api.mapper.CurrenciesExchangeRateMapper;
-import com.exchange.api.mapper.ExchangeRateMapper;
+import com.exchange.api.config.TestConfig;
 import com.exchange.generated.model.CurrenciesRateResponse;
 import com.exchange.generated.model.ExchangeRateResponse;
-import com.exchange.service.ExchangeRateCalculatorService;
-import com.exchange.service.ExchangeRateProviderService;
 import io.vavr.Tuple2;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -15,12 +12,10 @@ import org.junit.jupiter.params.aggregator.AggregateWith;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.MultiValueMapAdapter;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -30,14 +25,9 @@ import java.util.stream.Stream;
 import static com.exchange.utils.TestUtils.*;
 
 @WebFluxTest(ExchangeRateController.class)
-@Import(value = {
-        ExchangeRateCalculatorService.class, ExchangeRateMapper.class, CurrenciesExchangeRateMapper.class, ExchangeRateProviderService.class
-})
+@ContextConfiguration(classes = TestConfig.class)
 class ExchangeRateControllerTest extends BaseControllerTest {
     // TODO: Add white box testing: add more granular validation after adopting wiremock or other strategy of mocking response from downstream APIs
-
-    @MockBean
-    private WebClient webClient;
 
     private static final String GET_RATE_PATH_URI = "/rate/currency";
     private static final String GET_MULTIPLE_RATES_PATH_URI = "/rate/currencies";

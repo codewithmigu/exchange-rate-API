@@ -1,8 +1,8 @@
 package com.exchange.api;
 
+import com.exchange.api.mapper.AvailableCurrenciesMapper;
 import com.exchange.generated.api.AvailableCurrenciesApi;
 import com.exchange.generated.model.AvailableCurrenciesResponse;
-import com.exchange.api.mapper.AvailableCurrenciesMapper;
 import com.exchange.service.AvailableCurrenciesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

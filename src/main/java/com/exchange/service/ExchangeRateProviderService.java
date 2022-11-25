@@ -2,7 +2,6 @@ package com.exchange.service;
 
 import com.exchange.config.CacheScheduler;
 import com.exchange.service.model.ExchangeRateHostResponse;
-import io.vavr.collection.List;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
