@@ -24,7 +24,7 @@ paths:
         '500':
           description: |
             Failed to retrieve data because server occurred an internal problem.
-            
+
   /rate/currency:
     get:
       operationId: "GetCurrencyRate"
@@ -186,28 +186,22 @@ components:
     ExchangeRateResponse:
       type: object
       properties:
-        exchangeRate:
+        currency:
+          type: string
+          example: "EUR"
+        rate:
           type: number
           example: 42.666
       required:
-        - exchangeRate
+        - currency
+        - rate
 
     CurrenciesRateResponse:
       properties:
         exchangeRates:
           type: array
           items:
-            type: object
-            properties:
-              currency:
-                type: string
-                example: "EUR"
-              rate:
-                type: number
-                example: 42.666
-            required:
-              - currency
-              - rate
+            $ref: "#/components/schemas/ExchangeRateResponse"
       required:
         - exchangeRates
 
@@ -271,6 +265,6 @@ components:
           type: array
           items:
             type: string
-          example: ["USD", "EUR", "GBP"]
-      required: 
+          example: [ "USD", "EUR", "GBP" ]
+      required:
         - currencies

@@ -14,7 +14,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class Utils {
+public class TestUtils {
     public static final String EMPTY_STRING = "";
     public static final String CURRENCY_QUERY_PARAM_NAME = "currency";
     public static final String TARGET_QUERY_PARAM_NAME = "target";

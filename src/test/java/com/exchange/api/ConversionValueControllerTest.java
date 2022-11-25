@@ -1,6 +1,8 @@
 package com.exchange.api;
 
+import com.exchange.api.mapper.ConversionValueMapper;
 import com.exchange.generated.model.*;
+import com.exchange.service.ExchangeRateCalculatorService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -8,15 +10,19 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
+import org.springframework.context.annotation.Import;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static com.exchange.utils.Utils.*;
+import static com.exchange.utils.TestUtils.*;
 
 @WebFluxTest(ConversionValueController.class)
+@Import(value = {
+        ExchangeRateCalculatorService.class, ConversionValueMapper.class, CurrenciesConversionValueResponse.class
+})
 class ConversionValueControllerTest extends BaseControllerTest {
     // TODO: Add white box testing: add more granular validation after adopting wiremock or other strategy of mocking response from downstream APIs
     // Maybe add a scenario with 0 as value for both endpoints
@@ -43,7 +49,8 @@ class ConversionValueControllerTest extends BaseControllerTest {
 
         // then
         Assertions.assertThat(response).isNotNull();
-        Assertions.assertThat(response.getExchangeRate()).isNotNull();
+        Assertions.assertThat(response.getRate()).isNotNull();
+        Assertions.assertThat(response.getCurrency()).isNotNull();
     }
 
     @Test
