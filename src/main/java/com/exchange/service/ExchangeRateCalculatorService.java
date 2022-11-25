@@ -10,6 +10,7 @@ import java.math.RoundingMode;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @Service
 public class ExchangeRateCalculatorService implements ExchangeRateCalculator {
@@ -37,9 +38,11 @@ public class ExchangeRateCalculatorService implements ExchangeRateCalculator {
         return provider.getExchangeRates()
                 .flatMapIterable(Map::entrySet)
                 .filter(targetCurrenciesPredicate)
-                .flatMap(e -> getCurrencyRate(baseCurrency, e.getKey())
-                        .map(value -> Map.entry(e.getKey(), value)))
-                .collectMap(Map.Entry::getKey, Map.Entry::getValue);
+                .collectMap(Map.Entry::getKey, Map.Entry::getValue)
+                .map(targetCurrenciesMap -> targetCurrenciesMap.keySet().stream()
+                        .map(bigDecimal -> Map.entry(bigDecimal, computeConversionValue(targetCurrenciesMap, BigDecimal.ONE, baseCurrency, bigDecimal)))
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
+                );
     }
 
     @Override
@@ -53,9 +56,11 @@ public class ExchangeRateCalculatorService implements ExchangeRateCalculator {
         return provider.getExchangeRates()
                 .flatMapIterable(Map::entrySet)
                 .filter(e -> targetCurrencies.contains(e.getKey()))
-                .flatMap(e -> getConversionValue(e.getValue(), baseCurrency, e.getKey())
-                        .map(conversionValue -> Map.entry(e.getKey(), conversionValue)))
-                .collectMap(Map.Entry::getKey, Map.Entry::getValue);
+                .collectMap(Map.Entry::getKey, Map.Entry::getValue)
+                .map(targetCurrenciesMap -> targetCurrenciesMap.entrySet().stream()
+                        .map(e -> Map.entry(e.getKey(), computeConversionValue(targetCurrenciesMap, e.getValue(), baseCurrency, e.getKey())))
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
+                );
     }
 
     private BigDecimal computeConversionValue(Map<String, BigDecimal> exchangeRatesMap,
