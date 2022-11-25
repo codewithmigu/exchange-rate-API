@@ -34,7 +34,7 @@ public class ConversionValueController implements ConversionValueApi {
     public Mono<ResponseEntity<ConversionValueResponse>> getCurrencyConversionValue(Mono<ConversionValueRequest> conversionValueRequest, ServerWebExchange exchange) {
         return conversionValueRequest.map(request -> service
                         .getConversionValue(request.getValue(), request.getCurrency(), request.getTarget())
-                        .map(conversionValue -> conversionValueMapper.from(request.getCurrency(), conversionValue)))
+                        .map(conversionValue -> conversionValueMapper.from(request.getTarget(), conversionValue)))
                 .flatMap(conversionValueResponseMono -> conversionValueResponseMono)
                 .map(ResponseEntity::ok);
     }

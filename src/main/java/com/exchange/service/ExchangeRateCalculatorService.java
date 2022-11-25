@@ -1,5 +1,6 @@
 package com.exchange.service;
 
+import com.exchange.utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -31,16 +32,14 @@ public class ExchangeRateCalculatorService implements ExchangeRateCalculator {
 
     @Override
     public Mono<Map<String, BigDecimal>> getCurrenciesRates(String baseCurrency, Set<String> targetCurrencies) {
-        // Predicate used to filter only given currencies as optional query param, if empty then it will return all
-        Predicate<Map.Entry<String, BigDecimal>> targetCurrenciesPredicate = e ->
-                targetCurrencies.isEmpty() ? Boolean.TRUE : targetCurrencies.contains(e.getKey());
-
         return provider.getExchangeRates()
                 .flatMapIterable(Map::entrySet)
-                .filter(targetCurrenciesPredicate)
+                .filter(e -> targetCurrencies.isEmpty() ? Boolean.TRUE : Utils.equalsOneOf(e, baseCurrency, targetCurrencies))
                 .collectMap(Map.Entry::getKey, Map.Entry::getValue)
-                .map(targetCurrenciesMap -> targetCurrenciesMap.keySet().stream()
-                        .map(bigDecimal -> Map.entry(bigDecimal, computeConversionValue(targetCurrenciesMap, BigDecimal.ONE, baseCurrency, bigDecimal)))
+                .map(filteredMap -> filteredMap.keySet().stream()
+                        .map(targetCurrency ->
+                                Map.entry(targetCurrency, computeConversionValue(filteredMap, BigDecimal.ONE, baseCurrency, targetCurrency)))
+                        .filter(e -> targetCurrencies.contains(e.getKey()))
                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
                 );
     }
@@ -55,19 +54,21 @@ public class ExchangeRateCalculatorService implements ExchangeRateCalculator {
     public Mono<Map<String, BigDecimal>> getCurrenciesConversionValues(BigDecimal value, String baseCurrency, Set<String> targetCurrencies) {
         return provider.getExchangeRates()
                 .flatMapIterable(Map::entrySet)
-                .filter(e -> targetCurrencies.contains(e.getKey()))
+                .filter(e -> targetCurrencies.isEmpty() ? Boolean.TRUE : Utils.equalsOneOf(e, baseCurrency, targetCurrencies))
                 .collectMap(Map.Entry::getKey, Map.Entry::getValue)
-                .map(targetCurrenciesMap -> targetCurrenciesMap.entrySet().stream()
-                        .map(e -> Map.entry(e.getKey(), computeConversionValue(targetCurrenciesMap, e.getValue(), baseCurrency, e.getKey())))
+                .map(targetCurrenciesMap -> targetCurrenciesMap.keySet().stream()
+                        .map(targetCurrency ->
+                                Map.entry(targetCurrency, computeConversionValue(targetCurrenciesMap, value, baseCurrency, targetCurrency)))
+                        .filter(e -> targetCurrencies.contains(e.getKey()))
                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
                 );
     }
 
     private BigDecimal computeConversionValue(Map<String, BigDecimal> exchangeRatesMap,
-                                              BigDecimal value,
+                                              BigDecimal baseCurrencyValue,
                                               String baseCurrency,
                                               String targetCurrency) {
-        return value
+        return baseCurrencyValue
                 .multiply(exchangeRatesMap.get(targetCurrency))
                 .divide(exchangeRatesMap.get(baseCurrency), maxRoundingPrecision, RoundingMode.HALF_EVEN)
                 .stripTrailingZeros();
