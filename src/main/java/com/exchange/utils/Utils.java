@@ -14,7 +14,7 @@ public class Utils {
         return list == null ? Collections.emptySet() : new HashSet<>(list);
     }
 
-    public static boolean equalsOneOf(Map.Entry<String, BigDecimal> entry, String str, Set<String> set) {
+    public static boolean entryKeyEqualsOneOf(Map.Entry<String, BigDecimal> entry, String str, Set<String> set) {
         return StringUtils.equalsIgnoreCase(entry.getKey(), str) || set.contains(entry.getKey());
     }
 }

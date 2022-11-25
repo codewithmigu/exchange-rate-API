@@ -8,7 +8,7 @@ info:
 servers:
   - url: 'http://localhost:8080/api/exchange'
 paths:
-  /available-currencies:
+  /supported-currencies:
     get:
       operationId: "GetAvailableCurrencies"
       summary: |
@@ -20,7 +20,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AvailableCurrenciesResponse'
+                $ref: '#/components/schemas/SupportedCurrenciesResponse'
         '500':
           description: |
             Failed to retrieve data because server occurred an internal problem.
@@ -130,10 +130,12 @@ paths:
     post:
       operationId: "GetMultipleCurrenciesConversionValue"
       summary: |
-        Retrieves the conversion values of given value and its currency into the target currencies.
+        Retrieves the conversion values of given value and its currency into the target currencies
+        or all supported currencies if target is not provided.
       requestBody:
         description: |
           Contains the value with its currency, alongside a list of target currencies.
+          If supplied target currencies are not provided, it will return the result for all supported currencies.
         required: true
         content:
           application/json:
@@ -172,6 +174,7 @@ components:
         The base currency on which the requested operation is applied.
       example: "EUR"
 
+
     targetCurrencyParam:
       in: query
       name: target
@@ -195,6 +198,7 @@ components:
       required:
         - currency
         - rate
+      minimum: 0
 
     CurrenciesRateResponse:
       properties:
@@ -210,6 +214,7 @@ components:
         value:
           type: number
           example: 42.666
+          minimum: 0
         currency:
           type: string
           example: "EUR"
@@ -229,6 +234,7 @@ components:
         value:
           type: number
           example: 42.666
+          minimum: 0
       required:
         - value
 
@@ -237,6 +243,7 @@ components:
         value:
           type: number
           example: 42.666
+          minimum: 0
         currency:
           type: string
           example: "EUR"
@@ -248,7 +255,6 @@ components:
       required:
         - value
         - currency
-        - target
 
     CurrenciesConversionValueResponse:
       properties:
@@ -259,7 +265,7 @@ components:
       required:
         - conversionValues
 
-    AvailableCurrenciesResponse:
+    SupportedCurrenciesResponse:
       properties:
         currencies:
           type: array

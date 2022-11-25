@@ -39,7 +39,7 @@ public class ExchangeRateController implements RateApi {
     }
 
     @Override
-    public Mono<ResponseEntity<CurrenciesRateResponse>> getMultipleCurrenciesRate(String currency, @RequestParam List<String> target, ServerWebExchange exchange) {
+    public Mono<ResponseEntity<CurrenciesRateResponse>> getMultipleCurrenciesRate(String currency, @RequestParam(required = false) List<String> target, ServerWebExchange exchange) {
         return service.getCurrenciesRates(currency, Utils.from(target))
                 .map(currenciesExchangeRateMapper::from)
                 .map(ResponseEntity::ok);
